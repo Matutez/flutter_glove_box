@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 class PageObject extends Finder {
   /// Creates a [PageObject] for this [Finder]
   PageObject(this._finder);
+
   final Finder _finder;
 
   @override
@@ -17,7 +18,7 @@ class PageObject extends Finder {
   String get description => _finder.description;
 
   @override
-  Iterable<Element> evaluate() => _finder.evaluate();
+  FinderResult<Element> evaluate() => _finder.evaluate();
 
   @override
   bool precache() => _finder.precache();

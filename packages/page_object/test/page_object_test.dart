@@ -20,6 +20,7 @@ class TestFinder extends Finder {
   TestFinder(this.testElement);
 
   final Element testElement;
+
   @override
   Iterable<Element> apply(Iterable<Element> candidates) => [testElement];
 
@@ -27,18 +28,37 @@ class TestFinder extends Finder {
   String get description => 'This is a test finder.';
 
   @override
-  Iterable<Element> evaluate() => [testElement];
-
+  FinderResult<Element> evaluate() => FinderResult(
+    (candidates) => 'Found ${candidates.name} matching element(s)',
+    [testElement],
+  );
   @override
   bool precache() => true;
 }
 
 class TestElement extends Element {
-  TestElement() : super(const SizedBox.shrink());
+  TestElement() : super(const TestWidget());
 
   @override
   bool get debugDoingBuild => true;
 
   @override
-  void performRebuild() {}
+  void performRebuild() {
+    super.performRebuild();
+  }
+
+  // Nuevos métodos requeridos en Flutter 3.x
+
+  @override
+  Widget build() => widget;
+}
+
+// Widget simple para usar con TestElement
+class TestWidget extends StatelessWidget {
+  const TestWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
 }
