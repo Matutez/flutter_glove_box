@@ -16,8 +16,8 @@ import 'package:flutter/material.dart';
 
 class WeatherForecast extends StatelessWidget {
   const WeatherForecast({Key? key, List<Forecast> list = thisWeek})
-      : _list = list,
-        super(key: key);
+    : _list = list,
+      super(key: key);
 
   final List<Forecast> _list;
 
@@ -40,10 +40,7 @@ class WeatherForecast extends StatelessWidget {
           Column(
             children: [
               const SizedBox(height: 48),
-              Text(
-                'Today\'s Forecast',
-                style: theme.textTheme.headline6,
-              ),
+              Text('Today\'s Forecast', style: theme.textTheme.titleLarge),
               Container(
                 constraints: const BoxConstraints(minWidth: 100, maxWidth: 300),
                 child: Theme(
@@ -53,8 +50,9 @@ class WeatherForecast extends StatelessWidget {
                       shape: const CircleBorder(),
                     ),
                     textTheme: theme.textTheme.copyWith(
-                      bodyText2:
-                          theme.textTheme.bodyText2!.copyWith(fontSize: 24),
+                      bodyMedium: theme.textTheme.bodyMedium!.copyWith(
+                        fontSize: 24,
+                      ),
                     ),
                   ),
                   child: WeatherCard.forecast(today),
@@ -68,8 +66,10 @@ class WeatherForecast extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('This Week\'s Forecast',
-                  style: Theme.of(context).textTheme.headline6),
+              Text(
+                'This Week\'s Forecast',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               if (MediaQuery.of(context).size.width > 400 &&
                   MediaQuery.of(context).size.height > 600)
                 WeeklyForecastExpanded(forecasts: _list)
@@ -85,10 +85,8 @@ class WeatherForecast extends StatelessWidget {
 }
 
 class WeeklyForecastExpanded extends StatelessWidget {
-  const WeeklyForecastExpanded({
-    Key? key,
-    required this.forecasts,
-  }) : super(key: key);
+  const WeeklyForecastExpanded({Key? key, required this.forecasts})
+    : super(key: key);
 
   final List<Forecast> forecasts;
 
@@ -98,31 +96,32 @@ class WeeklyForecastExpanded extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: forecasts
-          .map((f) => Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const Spacer(flex: 2),
-                  Flexible(flex: 3, child: WeatherCard.forecast(f)),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    flex: 5,
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(f.description)),
+          .map(
+            (f) => Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Spacer(flex: 2),
+                Flexible(flex: 3, child: WeatherCard.forecast(f)),
+                const SizedBox(width: 8),
+                Flexible(
+                  flex: 5,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(f.description),
                   ),
-                ],
-              ))
+                ),
+              ],
+            ),
+          )
           .toList(),
     );
   }
 }
 
 class WeeklyForecastCompact extends StatelessWidget {
-  const WeeklyForecastCompact({
-    Key? key,
-    required this.forecasts,
-  }) : super(key: key);
+  const WeeklyForecastCompact({Key? key, required this.forecasts})
+    : super(key: key);
 
   final List<Forecast> forecasts;
 
@@ -135,10 +134,12 @@ class WeeklyForecastCompact extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: forecasts
-              .map((f) => SizedBox(
-                    width: MediaQuery.of(context).size.width * .3,
-                    child: WeatherCard.forecast(f),
-                  ))
+              .map(
+                (f) => SizedBox(
+                  width: MediaQuery.of(context).size.width * .3,
+                  child: WeatherCard.forecast(f),
+                ),
+              )
               .toList(),
         ),
       ),
@@ -168,14 +169,16 @@ class WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      ///example of different layout types based on device size / rotation
-      if (constraints.maxWidth > 400) {
-        return _horizontalCard(context);
-      } else {
-        return _verticalCard(context);
-      }
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        ///example of different layout types based on device size / rotation
+        if (constraints.maxWidth > 400) {
+          return _horizontalCard(context);
+        } else {
+          return _verticalCard(context);
+        }
+      },
+    );
   }
 
   //if screen is large, we want this card to be horizontal as Row
@@ -234,24 +237,24 @@ class WeatherCard extends StatelessWidget {
   }
 
   Text _temperature() => Text(
-        '$temp°F',
-        style: TextStyle(color: temp > 33 ? Colors.red : Colors.blue),
-      );
+    '$temp°F',
+    style: TextStyle(color: temp > 33 ? Colors.red : Colors.blue),
+  );
 
   Text _description() => Text(
-        _textForWeather(weather),
-        style: const TextStyle(color: Colors.white),
-        textAlign: TextAlign.center,
-      );
+    _textForWeather(weather),
+    style: const TextStyle(color: Colors.white),
+    textAlign: TextAlign.center,
+  );
 
   Text _day() => Text(day, style: const TextStyle(color: Colors.white));
 
   Image _image() => Image.asset(
-        'images/${_assetForWeather(weather)}',
-        color: Colors.white,
-        width: 40,
-        height: 40,
-      );
+    'images/${_assetForWeather(weather)}',
+    color: Colors.white,
+    width: 40,
+    height: 40,
+  );
 }
 
 String _assetForWeather(Weather weather) {
@@ -280,15 +283,11 @@ String _textForWeather(Weather weather) {
   }
 }
 
-enum Weather {
-  sunny,
-  rain,
-  cold,
-  cloudy,
-}
+enum Weather { sunny, rain, cold, cloudy }
 
-final RoundedRectangleBorder _cardShape =
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0));
+final RoundedRectangleBorder _cardShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.circular(15.0),
+);
 
 class Forecast {
   const Forecast({

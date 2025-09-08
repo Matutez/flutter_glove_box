@@ -16,22 +16,20 @@ Future<void> main() async {
       testGoldens('Safe Area test', (tester) async {
         await tester.pumpWidgetBuilder(
           Container(
-              color: Colors.white,
-              child: SafeArea(child: Container(color: Colors.blue))),
+            color: Colors.white,
+            child: SafeArea(child: Container(color: Colors.blue)),
+          ),
         );
         await multiScreenGolden(
           tester,
           'safe_area',
           devices: [
-            const Device(
-              name: 'no_safe_area',
-              size: Size(200, 200),
-            ),
+            const Device(name: 'no_safe_area', size: Size(200, 200)),
             const Device(
               name: 'safe_area',
               size: Size(200, 200),
               safeArea: EdgeInsets.fromLTRB(5, 10, 15, 20),
-            )
+            ),
           ],
         );
       });
@@ -42,8 +40,8 @@ Future<void> main() async {
             builder: (context) => Container(
               color:
                   MediaQuery.of(context).platformBrightness == Brightness.dark
-                      ? Colors.grey
-                      : Colors.white,
+                  ? Colors.grey
+                  : Colors.white,
               child: Text(MediaQuery.of(context).platformBrightness.toString()),
             ),
           ),
@@ -61,18 +59,30 @@ Future<void> main() async {
               name: 'dark',
               size: Size(200, 200),
               brightness: Brightness.dark,
-            )
+            ),
           ],
         );
       });
 
       testGoldens('Should restore window binding settings', (tester) async {
-        final size = tester.binding.createViewConfiguration().size;
-        final initialSize = tester.binding.window.physicalSize;
-        final initialBrightness = tester.binding.window.platformBrightness;
-        final initialDevicePixelRatio = tester.binding.window.devicePixelRatio;
-        final initialTextScaleFactor = tester.binding.window.textScaleFactor;
-        final initialViewInsets = tester.binding.window.padding;
+        final size = tester
+            .binding
+            .renderViews
+            .first
+            .configuration
+            .logicalConstraints
+            .biggest;
+
+        final initialSize =
+            tester.binding.platformDispatcher.views.first.physicalSize;
+        final initialBrightness =
+            tester.binding.platformDispatcher.platformBrightness;
+        final initialDevicePixelRatio =
+            tester.binding.platformDispatcher.views.first.devicePixelRatio;
+        final initialTextScaleFactor =
+            tester.binding.platformDispatcher.textScaleFactor;
+        final initialViewInsets =
+            tester.binding.platformDispatcher.views.first.viewInsets;
 
         await tester.pumpWidgetBuilder(Container());
         await multiScreenGolden(
@@ -86,36 +96,61 @@ Future<void> main() async {
               safeArea: EdgeInsets.all(4),
               devicePixelRatio: 2.0,
               textScale: 1.5,
-            )
+            ),
           ],
         );
 
-        expect(tester.binding.createViewConfiguration().size, equals(size));
-        expect(tester.binding.window.physicalSize, equals(initialSize));
-        expect(tester.binding.window.platformBrightness,
-            equals(initialBrightness));
-        expect(tester.binding.window.devicePixelRatio,
-            equals(initialDevicePixelRatio));
-        expect(tester.binding.window.textScaleFactor,
-            equals(initialTextScaleFactor));
-        expect(tester.binding.window.padding, equals(initialViewInsets));
+        expect(
+          tester
+              .binding
+              .renderViews
+              .first
+              .configuration
+              .logicalConstraints
+              .biggest,
+          equals(size),
+        );
+        expect(
+          tester.binding.platformDispatcher.views.first.physicalSize,
+          equals(initialSize),
+        );
+        expect(
+          tester.binding.platformDispatcher.platformBrightness,
+          equals(initialBrightness),
+        );
+        expect(
+          tester.binding.platformDispatcher.views.first.devicePixelRatio,
+          equals(initialDevicePixelRatio),
+        );
+        expect(
+          tester.binding.platformDispatcher.textScaleFactor,
+          equals(initialTextScaleFactor),
+        );
+        expect(
+          tester.binding.platformDispatcher.views.first.viewInsets,
+          equals(initialViewInsets),
+        );
       });
 
       testGoldens('Maintain physical size in pumped widget', (tester) async {
         bool firstPump = true;
         const defaultSize = Size(800, 600);
         const desiredSize = Size(50, 75);
-        await tester.pumpWidgetBuilder(StreamBuilder(builder: (context, _) {
-          if (firstPump) {
-            expect(MediaQuery
-                .of(context)
-                .size, equals(defaultSize));
-            firstPump = false;
-          } else {
-            expect(MediaQuery.of(context).size, equals(desiredSize));
-          }
-          return const Text('Done');
-        }));
+        await tester.pumpWidgetBuilder(
+          StreamBuilder(
+            stream: Stream<void>.empty(),
+
+            builder: (context, _) {
+              if (firstPump) {
+                expect(MediaQuery.of(context).size, equals(defaultSize));
+                firstPump = false;
+              } else {
+                expect(MediaQuery.of(context).size, equals(desiredSize));
+              }
+              return const Text('Done');
+            },
+          ),
+        );
         await multiScreenGolden(
           tester,
           'desiredSize',
@@ -127,22 +162,25 @@ Future<void> main() async {
               safeArea: EdgeInsets.all(4),
               devicePixelRatio: 2.0,
               textScale: 1.0,
-            )
+            ),
           ],
         );
       });
 
-      testGoldens('Should expand scrollable if autoHeight is true',
-          (tester) async {
-        await tester.pumpWidgetBuilder(ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            return Container(
-              color: Colors.black.withRed(255 - index * 5),
-              height: 50,
-            );
-          },
-          itemCount: 40,
-        ));
+      testGoldens('Should expand scrollable if autoHeight is true', (
+        tester,
+      ) async {
+        await tester.pumpWidgetBuilder(
+          ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                color: Colors.black.withRed(255 - index * 5),
+                height: 50,
+              );
+            },
+            itemCount: 40,
+          ),
+        );
 
         await multiScreenGolden(
           tester,
@@ -153,21 +191,24 @@ Future<void> main() async {
               name: 'anything',
               size: Size(100, 200),
               brightness: Brightness.light,
-            )
+            ),
           ],
         );
       });
 
-      testGoldens('Should expand scrollable only if not infinite',
-          (tester) async {
-        await tester.pumpWidgetBuilder(ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            return Container(
-              color: Colors.black.withRed(255 - index * 5),
-              height: 50,
-            );
-          },
-        ));
+      testGoldens('Should expand scrollable only if not infinite', (
+        tester,
+      ) async {
+        await tester.pumpWidgetBuilder(
+          ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                color: Colors.black.withRed(255 - index * 5),
+                height: 50,
+              );
+            },
+          ),
+        );
 
         await multiScreenGolden(
           tester,
@@ -178,17 +219,20 @@ Future<void> main() async {
               name: 'anything',
               size: Size(100, 200),
               brightness: Brightness.light,
-            )
+            ),
           ],
         );
       });
 
-      testGoldens('Should shrink to finders height if autoHeight is true',
-          (tester) async {
-        await tester.pumpWidget(Center(
-          // We center here so the Container is not forced to go full height
-          child: Container(color: Colors.red, height: 50),
-        ));
+      testGoldens('Should shrink to finders height if autoHeight is true', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          Center(
+            // We center here so the Container is not forced to go full height
+            child: Container(color: Colors.red, height: 50),
+          ),
+        );
 
         await multiScreenGolden(
           tester,
@@ -200,31 +244,35 @@ Future<void> main() async {
               name: 'anything',
               size: Size(100, 200),
               brightness: Brightness.light,
-            )
+            ),
           ],
         );
       });
 
-      testGoldens('Should set to exact height if override height is specified',
-          (tester) async {
-        await tester.pumpWidget(Center(
-          // We center here so the Container is not forced to go full height
-          child: Container(color: Colors.red, height: 50),
-        ));
+      testGoldens(
+        'Should set to exact height if override height is specified',
+        (tester) async {
+          await tester.pumpWidget(
+            Center(
+              // We center here so the Container is not forced to go full height
+              child: Container(color: Colors.red, height: 50),
+            ),
+          );
 
-        await multiScreenGolden(
-          tester,
-          'override_height',
-          overrideGoldenHeight: 300,
-          devices: [
-            const Device(
-              name: 'anything',
-              size: Size(100, 200),
-              brightness: Brightness.light,
-            )
-          ],
-        );
-      });
+          await multiScreenGolden(
+            tester,
+            'override_height',
+            overrideGoldenHeight: 300,
+            devices: [
+              const Device(
+                name: 'anything',
+                size: Size(100, 200),
+                brightness: Brightness.light,
+              ),
+            ],
+          );
+        },
+      );
     });
   });
 }
